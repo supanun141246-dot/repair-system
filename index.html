@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ระบบบันทึกการแจ้งซ่อม</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f2f2f2;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .box {
+            background: white;
+            padding: 20px;
+            max-width: 1100px;
+            margin: auto;
+            border-radius: 8px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, textarea, select, button {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 12px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background: #4CAF50;
+            color: white;
+        }
+        .delete {
+            background: #e74c3c;
+        }
+        .delete:hover {
+            background: #c0392b;
+        }
+    </style>
+</head>
+<body>
+
+<h1>ระบบบันทึกการแจ้งซ่อมอุปกรณ์</h1>
+
+<div class="box">
+   
+    <a href="index.html">⬅ กลับหน้าแรก</a>
+<br><br>
+
+
+    <label>ชื่อผู้แจ้ง</label>
+    <input id="reporter">
+
+    <label>ชื่อตึก</label>
+    <input id="building">
+
+    <label>ชื่อชั้น</label>
+    <input id="floor">
+
+    <label>ชื่อแผนก</label>
+    <input id="department">
+
+    <label>ชื่ออุปกรณ์</label>
+    <input id="device">
+
+    <label>อาการ / ปัญหา</label>
+    <textarea id="problem"></textarea>
+
+    <label>สถานะ</label>
+    <select id="status">
+        <option value="รอซ่อม">รอซ่อม</option>
+        <option value="กำลังซ่อม">กำลังซ่อม</option>
+        <option value="ซ่อมเสร็จ">ซ่อมเสร็จ</option>
+    </select>
+
+    <button onclick="saveRepair()">บันทึกข้อมูล</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>วันที่</th>
+                <th>ผู้แจ้ง</th>
+                <th>ตึก</th>
+                <th>ชั้น</th>
+                <th>แผนก</th>
+                <th>อุปกรณ์</th>
+                <th>อาการ</th>
+                <th>สถานะ</th>
+                <th>ลบ</th>
+            </tr>
+        </thead>
+        <tbody id="repairList"></tbody>
+    </table>
+
+</div>
+
+<script>
+    let repairs = JSON.parse(localStorage.getItem("repairs")) || [];
+
+    function saveRepair() {
+        let repair = {
+            date: new Date().toLocaleDateString("th-TH"),
+            reporter: reporter.value,
+            building: building.value,
+            floor: floor.value,
+            department: department.value,
+            device: device.value,
+            problem: problem.value,
+            status: status.value
+        };
+
+        for (let key in repair) {
+            if (repair[key] === "") {
+                alert("กรุณากรอกข้อมูลให้ครบ");
+                return;
+            }
+        }
+
+        repairs.push(repair);
+        localStorage.setItem("repairs", JSON.stringify(repairs));
+        showRepair();
+        clearForm();
+    }
+
+    function showRepair() {
+        repairList.innerHTML = "";
+        repairs.forEach((r, i) => {
+            repairList.innerHTML += `
+                <tr>
+                    <td>${r.date}</td>
+                    <td>${r.reporter}</td>
+                    <td>${r.building}</td>
+                    <td>${r.floor}</td>
+                    <td>${r.department}</td>
+                    <td>${r.device}</td>
+                    <td>${r.problem}</td>
+                    <td>${r.status}</td>
+                    <td>
+                        <button class="delete" onclick="deleteRepair(${i})">ลบ</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function deleteRepair(index) {
+        if (confirm("ต้องการลบข้อมูลนี้หรือไม่?")) {
+            repairs.splice(index, 1);
+            localStorage.setItem("repairs", JSON.stringify(repairs));
+            showRepair();
+        }
+    }
+
+    function clearForm() {
+        reporter.value = "";
+        building.value = "";
+        floor.value = "";
+        department.value = "";
+        device.value = "";
+        problem.value = "";
+        status.value = "รอซ่อม";
+    }
+
+    showRepair();
+</script>
+
+</body>
+</html>
